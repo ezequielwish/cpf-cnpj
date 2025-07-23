@@ -23,7 +23,7 @@
                 />
 
                 <button
-                    onclick="validate()"
+                    onclick="validateDoc()"
                     class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
                 >
                     Validar
@@ -31,13 +31,13 @@
 
                 <div class="flex space-x-2">
                     <button
-                        onclick="generate('cpf')"
+                        onclick="generateDoc('cpf')"
                         class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
                     >
                         Gerar CPF
                     </button>
                     <button
-                        onclick="generate('cnpj')"
+                        onclick="generateDoc('cnpj')"
                         class="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700"
                     >
                         Gerar CNPJ
@@ -50,54 +50,7 @@
 
         <script>
             const baseURL = "{{ url_for('index') }}".replace(/\/$/, "");
-
-            async function generate(tipo) {
-                try {
-                    const res = await fetch(`${baseURL}/generate/${tipo}`);
-                    const data = await res.json();
-                    document.getElementById("inputValue").value =
-                        data.value || "";
-                    showResult(
-                        `Novo ${tipo.toUpperCase()} gerado: ${data.value}`,
-                        "green"
-                    );
-                } catch (err) {
-                    showResult("Erro ao gerar " + tipo.toUpperCase(), "red");
-                }
-            }
-
-            async function validate() {
-                const rawValue = document.getElementById("inputValue").value;
-                const value = rawValue.replace(/\D/g, ""); // remove NOT-Numbers
-
-                if (!value) return showResult("Digite um CPF ou CNPJ", "red");
-
-                try {
-                    const res = await fetch(`${baseURL}/validate`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ value }),
-                    });
-                    const data = await res.json();
-                    if (data.valid) {
-                        showResult(`${value} é válido ✅`, "green");
-                    } else {
-                        showResult(`${value} é inválido ❌`, "red");
-                    }
-                } catch (err) {
-                    showResult("Erro na validação", "red");
-                }
-            }
-
-            function sanitizeInput(el) {
-                el.value = el.value.replace(/\D/g, ""); // remove NOT-Numbers or . -
-            }
-
-            function showResult(msg, color) {
-                const result = document.getElementById("result");
-                result.textContent = msg;
-                result.className = `text-center mt-4 font-semibold text-${color}-600`;
-            }
         </script>
+        <script src="{{ url_for('static', filename='scripts.js') }}"></script>
     </body>
 </html>

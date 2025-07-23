@@ -1,68 +1,51 @@
 from random import randint
 
 
-def cpf():
-    raw_cpf = str(randint(100000000, 999999999))
-    contador = 10
-    tot = 0
-    for _, value in enumerate(raw_cpf):
-        temp = int(value) * contador
-        tot += temp
-        contador -= 1
-    contador = 11
-    dig1 = 11 - (tot % 11)
-    tot = 0
-    if dig1 > 9:
-        dig1 = 0
-    raw_cpf += str(dig1)
-    for _, value in enumerate(raw_cpf):
-        temp = int(value) * contador
-        tot += temp
-        contador -= 1
-    dig2 = 11 - (tot % 11)
-    if dig2 > 9:
-        dig2 = 0
-    raw_cpf += str(dig2)
-    if raw_cpf == 11 * raw_cpf[0]:
-        cpf()
-    new_cpf = f"{raw_cpf[0:3]}.{raw_cpf[3:6]}.{raw_cpf[6:9]}-{raw_cpf[9:]}"
-    return new_cpf
-
-
-def cnpj():
+def generate_cpf():
     while True:
-        raw_cnpj = str(randint(10000000, 99999999)) + "0001"
-        tot = 0
-        new_cnpj = list(raw_cnpj)
-        keys_cnpj = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
-        new_cnpj = list(new_cnpj)
-        for k, v in enumerate(new_cnpj):
-            tot += int(v) * keys_cnpj[k]
-        dig1 = 11 - (tot % 11)
-        tot = 0
-        if dig1 > 9:
-            new_cnpj.append(str(0))
-        else:
-            new_cnpj.append(str(dig1))
-        keys_cnpj2 = [6] + keys_cnpj
-        for k, v in enumerate(new_cnpj):
-            tot += int(v) * keys_cnpj2[k]
-        dig2 = 11 - (tot % 11)
-        if dig2 > 9:
-            new_cnpj.append(str(0))
-        else:
-            new_cnpj.append(str(dig2))
-        if raw_cnpj != len(raw_cnpj) * raw_cnpj[0]:
-            break
-    new_cnpj = "".join(new_cnpj)
-    new_cnpj = f"{new_cnpj[0:2]}.{new_cnpj[2:5]}.{new_cnpj[5:8]}/{new_cnpj[8:12]}-{new_cnpj[12:]}"
-    return new_cnpj
+        base = str(randint(100000000, 999999999))
+        if base == base[0] * 9:
+            continue
+
+        total = sum(int(d) * w for d, w in zip(base, range(10, 1, -1)))
+        digit1 = 11 - (total % 11)
+        digit1 = "0" if digit1 > 9 else str(digit1)
+
+        base += digit1
+        total = sum(int(d) * w for d, w in zip(base, range(11, 1, -1)))
+        digit2 = 11 - (total % 11)
+        digit2 = "0" if digit2 > 9 else str(digit2)
+
+        cpf_number = base + digit2
+        if cpf_number != cpf_number[0] * 11:
+            return (
+                f"{cpf_number[:3]}.{cpf_number[3:6]}.{cpf_number[6:9]}-{cpf_number[9:]}"
+            )
 
 
-def gen(type):
-    if type == "cpf" or type == "CPF":
-        return cpf()
-    elif type == "cnpj" or type == "CNPJ":
-        return cnpj()
-    else:
-        return "Somente CPF/CNPJ são aceitos."
+def generate_cnpj():
+    while True:
+        base = str(randint(10000000, 99999999)) + "0001"
+        if base == base[0] * 12:
+            continue
+
+        weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+        digit1 = 11 - (sum(int(d) * w for d, w in zip(base, weights1)) % 11)
+        digit1 = "0" if digit1 > 9 else str(digit1)
+
+        base += digit1
+        weights2 = [6] + weights1
+        digit2 = 11 - (sum(int(d) * w for d, w in zip(base, weights2)) % 11)
+        digit2 = "0" if digit2 > 9 else str(digit2)
+
+        cnpj_number = base + digit2
+        return f"{cnpj_number[:2]}.{cnpj_number[2:5]}.{cnpj_number[5:8]}/{cnpj_number[8:12]}-{cnpj_number[12:]}"
+
+
+def generate_document(doc_type):
+    doc_type = doc_type.lower()
+    if doc_type == "cpf":
+        return generate_cpf()
+    elif doc_type == "cnpj":
+        return generate_cnpj()
+    return "Only CPF or CNPJ are accepted."

@@ -11,7 +11,7 @@ def index():
 
 @app.route("/generate/<tipo>", methods=["GET"])
 def generate(tipo):
-    new_document = generator.gen(tipo)
+    new_document = generator.generate_document(tipo)
     return jsonify({"value": new_document})
 
 
@@ -19,7 +19,7 @@ def generate(tipo):
 def validate():
     data = request.get_json()
     document_number = data.get("value", "")
-    validation_result = validator.val(document_number)
+    validation_result = validator.validate_document(document_number)
     print(validation_result)
     return jsonify({"valid": validation_result})
 
