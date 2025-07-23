@@ -14,7 +14,7 @@ Renderiza a página inicial da aplicação (index.html).
 
 ## 📷 Screenshots 
 
-![screenshot 1](URL)
+![screenshot 1](https://github.com/ezequielwish/cpf-cnpj/blob/1e2a7ff04573f340e2564d24071d3e4af492b9c1/screenshots/screenshot.jpg)
 
 ### `GET /generate/<tipo>`
 
