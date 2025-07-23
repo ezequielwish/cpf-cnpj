@@ -12,6 +12,10 @@ Renderiza a página inicial da aplicação (index.html).
 
 ---
 
+## 📷 Screenshots 
+
+![screenshot 1](URL)
+
 ### `GET /generate/<tipo>`
 
 Gera um novo número de documento com base no tipo informado.
