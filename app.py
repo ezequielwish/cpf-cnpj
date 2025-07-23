@@ -1,28 +1,28 @@
 from flask import Flask, render_template, request, jsonify
+from documents_tool import generator, validator
 
 app = Flask(__name__)
 
-@app.route('/')
+
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
-@app.route('/generate/<tipo>')
+
+@app.route("/generate/<tipo>", methods=["GET"])
 def generate(tipo):
-    if tipo == 'cpf':
-        # lógica de geração de CPF
-        return jsonify({'value': '123.456.789-00'})
-    elif tipo == 'cnpj':
-        # lógica de geração de CNPJ
-        return jsonify({'value': '12.345.678/0001-99'})
-    return jsonify({'error': 'Tipo inválido'}), 400
+    new_document = generator.gen(tipo)
+    return jsonify({"value": new_document})
 
-@app.route('/validate', methods=['POST'])
+
+@app.route("/validate", methods=["POST"])
 def validate():
     data = request.get_json()
-    value = data.get('value', '')
-    # lógica de validação
-    valido = True if value.startswith('1') else False
-    return jsonify({'valid': valido})
+    document_number = data.get("value", "")
+    validation_result = validator.val(document_number)
+    print(validation_result)
+    return jsonify({"valid": validation_result})
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0")

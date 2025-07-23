@@ -1,77 +1,103 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Validador e Gerador de CPF/CNPJ</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full">
-    <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">CPF/CNPJ - Gerar e Validar</h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Validador e Gerador de CPF/CNPJ</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full">
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">
+                CPF/CNPJ - Gerar e Validar
+            </h1>
 
-    <div class="space-y-3">
-      <input id="inputValue" type="text" placeholder="Digite CPF ou CNPJ"
-        class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            <div class="space-y-3">
+                <input
+                    id="inputValue"
+                    type="text"
+                    placeholder="Digite CPF ou CNPJ"
+                    oninput="sanitizeInput(this)"
+                    maxlength="18"
+                    class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
 
-      <button onclick="validate()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-        Validar
-      </button>
+                <button
+                    onclick="validate()"
+                    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                    Validar
+                </button>
 
-      <div class="flex space-x-2">
-        <button onclick="generate('cpf')" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
-          Gerar CPF
-        </button>
-        <button onclick="generate('cnpj')" class="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">
-          Gerar CNPJ
-        </button>
-      </div>
+                <div class="flex space-x-2">
+                    <button
+                        onclick="generate('cpf')"
+                        class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+                    >
+                        Gerar CPF
+                    </button>
+                    <button
+                        onclick="generate('cnpj')"
+                        class="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700"
+                    >
+                        Gerar CNPJ
+                    </button>
+                </div>
 
-      <div id="result" class="text-center mt-4 font-semibold"></div>
-    </div>
-  </div>
+                <div id="result" class="text-center mt-4 font-semibold"></div>
+            </div>
+        </div>
 
-  <script>
-    const baseURL = "{{ url_for('index') }}".replace(/\/$/, '');
+        <script>
+            const baseURL = "{{ url_for('index') }}".replace(/\/$/, "");
 
-    async function generate(tipo) {
-      try {
-        const res = await fetch(`${baseURL}/generate/${tipo}`);
-        const data = await res.json();
-        document.getElementById("inputValue").value = data.value || "";
-        showResult(`Novo ${tipo.toUpperCase()} gerado: ${data.value}`, "green");
-      } catch (err) {
-        showResult("Erro ao gerar " + tipo.toUpperCase(), "red");
-      }
-    }
+            async function generate(tipo) {
+                try {
+                    const res = await fetch(`${baseURL}/generate/${tipo}`);
+                    const data = await res.json();
+                    document.getElementById("inputValue").value =
+                        data.value || "";
+                    showResult(
+                        `Novo ${tipo.toUpperCase()} gerado: ${data.value}`,
+                        "green"
+                    );
+                } catch (err) {
+                    showResult("Erro ao gerar " + tipo.toUpperCase(), "red");
+                }
+            }
 
-    async function validate() {
-      const value = document.getElementById("inputValue").value.trim();
-      if (!value) return showResult("Digite um CPF ou CNPJ", "red");
+            async function validate() {
+                const rawValue = document.getElementById("inputValue").value;
+                const value = rawValue.replace(/\D/g, ""); // remove NOT-Numbers
 
-      try {
-        const res = await fetch(`${baseURL}/validate`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ value })
-        });
-        const data = await res.json();
+                if (!value) return showResult("Digite um CPF ou CNPJ", "red");
 
-        if (data.valid) {
-          showResult(`${value} é válido ✅`, "green");
-        } else {
-          showResult(`${value} é inválido ❌`, "red");
-        }
-      } catch (err) {
-        showResult("Erro na validação", "red");
-      }
-    }
+                try {
+                    const res = await fetch(`${baseURL}/validate`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ value }),
+                    });
+                    const data = await res.json();
+                    if (data.valid) {
+                        showResult(`${value} é válido ✅`, "green");
+                    } else {
+                        showResult(`${value} é inválido ❌`, "red");
+                    }
+                } catch (err) {
+                    showResult("Erro na validação", "red");
+                }
+            }
 
-    function showResult(msg, color) {
-      const result = document.getElementById("result");
-      result.textContent = msg;
-      result.className = `text-center mt-4 font-semibold text-${color}-600`;
-    }
-  </script>
-</body>
+            function sanitizeInput(el) {
+                el.value = el.value.replace(/\D/g, ""); // remove NOT-Numbers or . -
+            }
+
+            function showResult(msg, color) {
+                const result = document.getElementById("result");
+                result.textContent = msg;
+                result.className = `text-center mt-4 font-semibold text-${color}-600`;
+            }
+        </script>
+    </body>
 </html>

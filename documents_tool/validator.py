@@ -69,3 +69,13 @@ def cnpj(cnpj_digits):
             return False
     except IndexError:
         return False
+
+
+def val(number):
+    if len(number) == 11:
+        return cpf(number)
+    elif len(number) == 14:
+        return cnpj(number)
+    else:
+        return False
+        
